@@ -137,7 +137,9 @@ public class EA {
 		race2.addCompetitor(driver2);
 
 		// Run in Text Mode
-		RaceResults results1 = race1.run();
+		System.out.println("Race!");
+		RaceResults results1 = race1.runWithGUI();
+		System.out.println("Race2!");
 		RaceResults results2 = race2.run();
 		
 		// Fitness = BestLap, except if both did not do at least one lap
