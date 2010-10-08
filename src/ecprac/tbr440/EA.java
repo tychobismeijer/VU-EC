@@ -14,9 +14,9 @@ import ecprac.torcs.race.Race.Track;
 public class EA {	 	
 
     final static int POPULATION_SIZE = 2,
-    				 EVALUATIONS = 200,
-    				 NR_OF_CHILDREN = 2;
-    Random r;    
+                     EVALUATIONS = 200,
+                     NR_OF_CHILDREN = 2;
+    Random r;
     Genome[] population;
     int evals;
     FitnessComparator c;
@@ -36,9 +36,6 @@ public class EA {
 		System.out.println("-------------Genomes------------------");
 		for (int i = 0; i < POPULATION_SIZE; i++){
 			System.out.println("Fitness is: " + population[i].fitness);
-			System.out.println("Speed is: " + population[i].speed);
-			System.out.println("Steering is: " + population[i].steering);
-			System.out.println("Track position is: " + population[i].trackpos);
 			System.out.println("Evals is: " + evals);
 			System.out.println("");
 		}
@@ -52,9 +49,6 @@ public class EA {
 		System.out.println("-------------Genomes------------------");
 		for (int i = 0; i < POPULATION_SIZE; i++){
 			System.out.println("Fitness is: " + population[i].fitness);
-			System.out.println("Speed is: " + population[i].speed);
-			System.out.println("Steering is: " + population[i].steering);
-			System.out.println("Track position is: " + population[i].trackpos);
 			System.out.println("Evals is: " + evals);
 			System.out.println("");
 		}
@@ -77,10 +71,6 @@ public class EA {
 				System.out.println("-------------Genomes------------------");
 				for (int i = 0; i < POPULATION_SIZE; i++){
 					System.out.println("Fitness is: " + population[i].fitness);
-					System.out.println("Speed is: " + population[i].speed);
-					System.out.println("Steering is: " + population[i].steering);
-					System.out.println("Track position is: " + population[i].trackpos);
-					System.out.println("Evals is: " + evals);
 					System.out.println("Percentage is: " + (double)evals/EVALUATIONS);
 					System.out.println("");
 				}
@@ -112,17 +102,13 @@ public class EA {
     */
     
     private void mutate(Genome genome) {
-		genome.speed += (int) (r.nextGaussian() * 20);
-		genome.steering += (0.1 * r.nextGaussian());
-		genome.trackpos += (0.1 * r.nextGaussian());
+        // What happens with the child??
+        genome.nn.mutate(1); 
     }
 	
 	private void initialize() {
 		for (int i = 0; i < POPULATION_SIZE; i++) {
 			Genome genome = new Genome();
-			genome.speed = r.nextInt(200);						// maxspeed = 200
-			genome.steering = r.nextDouble();
-			genome.trackpos = 0.8 * r.nextDouble();
 			genome.fitness = 1;
 			population[i] = genome;
 		}
@@ -160,7 +146,7 @@ public class EA {
 			  population[1].fitness = results2.get(driver2).distance;
 		} else {
 			  population[0].fitness = -1 * results1.get(driver1).bestLapTime;
-			  population[1].fitness = -1 * results2.get(driver2).bestLapTime;
+                          population[1].fitness = -1 * results2.get(driver2).bestLapTime;
 		}
 		
 		/*Race race = new Race();

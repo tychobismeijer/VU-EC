@@ -11,9 +11,10 @@ import ecprac.torcs.genome.IGenome;
 
 public class Driver extends GenomeDriver {
 
-	private int maxSpeed;
+	private double maxSpeed;
 	private double steering;
 	private double trackpos;
+        private EvoNN nn;
 
 
 	public void init() {
@@ -27,9 +28,10 @@ public class Driver extends GenomeDriver {
 
 		if (genome instanceof Genome) {
 			Genome llgenome = (Genome) genome;
-			maxSpeed = llgenome.speed;
-			steering = llgenome.steering;
-			trackpos = llgenome.trackpos;
+                        maxSpeed = 1.0;
+                        steering = 0.1;
+			trackpos = 0.2;
+                        nn = llgenome.nn;
 		} else {
 			System.err.println("Invalid Genome assigned");
 		}
