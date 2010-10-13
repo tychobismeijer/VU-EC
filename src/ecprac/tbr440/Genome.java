@@ -8,8 +8,8 @@ public class Genome implements IGenome {
     public EvoNN nn;
   
     Genome() {
-	fitness = 1.0;
-	nn = new EvoNN();
+    	fitness = 1000000000.0;
+    	nn = new EvoNN();
     }
 }
 

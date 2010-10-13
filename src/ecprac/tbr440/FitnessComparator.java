@@ -9,7 +9,7 @@ public class FitnessComparator implements Comparator{
 		double genome2Fitness = ( (Genome) genome2).fitness;
 		
 		if (genome1Fitness > genome2Fitness) return 1;
-		else if (genome1Fitness > genome2Fitness) return -1;
+		else if (genome1Fitness < genome2Fitness) return -1;
 		else return 0;
 	}
 }

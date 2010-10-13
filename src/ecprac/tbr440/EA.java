@@ -13,43 +13,44 @@ import ecprac.torcs.race.Race.Track;
 
 public class EA {	 	
 
-    final static int POPULATION_SIZE = 2,
-                     EVALUATIONS = 200,
+    final static int POPULATION_SIZE = 4,
+                     EVALUATIONS = 400,
                      NR_OF_CHILDREN = 2;
+    final static double ALPHA = 0.45,                 //must be between 0 and 1.
+    					MUTATION_PROBABILITY = 0.1;   //must be between 0 and 1.
+    
+    
     Random r;
     Genome[] population;
     int evals;
+    double globalFitness,
+    	   alpha;	
     FitnessComparator c;
    	
     EA() {
     	r = new Random(); 
     	population = new Genome[POPULATION_SIZE];    	
     	evals = 0;
+    	globalFitness = 0.0;
     	c = new FitnessComparator();
     }
     
     public void run() {
-		// initialize population
-		initialize();
+    	//TODO: parent selection
 		
-		//debug
-		System.out.println("-------------Genomes------------------");
-		for (int i = 0; i < POPULATION_SIZE; i++){
-			System.out.println("Fitness is: " + population[i].fitness);
-			System.out.println("Evals is: " + evals);
-			System.out.println("");
-		}
-		System.out.println("-------------/Genomes-----------------");
-		
+    	// initialize population
+		initialize();		
 		evaluateAll();
 		evals += POPULATION_SIZE;
-		Arrays.sort(population, c);
+		Arrays.sort(population, c); //genomes sorted from worst to best fitness
 		
 		//debug
 		System.out.println("-------------Genomes------------------");
 		for (int i = 0; i < POPULATION_SIZE; i++){
 			System.out.println("Fitness is: " + population[i].fitness);
-			System.out.println("Evals is: " + evals);
+			System.out.println("Percentage is: " + (double)evals/EVALUATIONS);
+			System.out.println("Weights: ");
+			population[i].nn.debugPrintWeights();
 			System.out.println("");
 		}
 		System.out.println("-------------/Genomes-----------------");
@@ -59,19 +60,20 @@ public class EA {
 			
 		
 			// the evolutionary loop
-			while (evals < EVALUATIONS) {			
-				recombine();
-				for (int i=0; i<NR_OF_CHILDREN; i++) mutate(population[POPULATION_SIZE-1]);
-			
+			while (evals < EVALUATIONS) {
+				//recombineAndMutate(population[POPULATION_SIZE-1], population[POPULATION_SIZE-2], ALPHA, MUTATION_PROBABILITY); //recombine best two parents
+				mutate(population[0], MUTATION_PROBABILITY); //debug: mutate worst
 				evaluateAll();	
 				evals += POPULATION_SIZE;
-				Arrays.sort(population, c);
+				Arrays.sort(population, c); //genomes sorted from worst to best fitness
 				
 				//debug
 				System.out.println("-------------Genomes------------------");
 				for (int i = 0; i < POPULATION_SIZE; i++){
 					System.out.println("Fitness is: " + population[i].fitness);
 					System.out.println("Percentage is: " + (double)evals/EVALUATIONS);
+					System.out.println("Weights: ");
+					population[i].nn.debugPrintWeights();
 					System.out.println("");
 				}
 				System.out.println("-------------/Genomes-----------------");
@@ -87,29 +89,33 @@ public class EA {
 		}
 	}
 	
-    private void recombine() {
-        /*double totalFitness = calculateTotalFitness();
+    //whole arithmetic crossover followed with mutation 
+    // -alpha must be between 0 and 1
+    // -mutationProbability must be between 0 and 1
+    private void recombineAndMutate(Genome parent1, Genome parent2, double alpha, double mutationProbability) {
+    	Genome child1 = new Genome();
+    	Genome child2 = new Genome();
     	
-    	population[0].fitness = 1;
-        population[1].fitness = 1;
-        population[2].fitness = 1;
-        population[3].fitness = 1;*/
+    	child1.nn = parent1.nn.crossOver(parent2.nn, ALPHA);
+    	mutate(child1, mutationProbability);    	
+    	child2.nn = parent2.nn.crossOver(parent1.nn, ALPHA);
+    	mutate(child2, mutationProbability);
+    	    	    	
+    	population[0] = child1; //the childs replace the genomes with worst fitnesses
+    	population[1] = child2; //the childs replace the genomes with worst fitnesses 
+    	Arrays.sort(population, c);
     }
     
-    /*double calculateTotalFitness() {
-    	for (i =0
-    }
-    */
-    
-    private void mutate(Genome genome) {
-        // What happens with the child??
-        genome.nn.mutate(1); 
+
+    // -mutationProbability must be between 0 and 1
+    private void mutate(Genome genome, double mutationProbability) {
+        genome.nn.mutate(mutationProbability); 
     }
 	
 	private void initialize() {
 		for (int i = 0; i < POPULATION_SIZE; i++) {
 			Genome genome = new Genome();
-			genome.fitness = 1;
+			genome.fitness = 1000000000.0;
 			population[i] = genome;
 		}
 	}
@@ -119,36 +125,66 @@ public class EA {
 		Race race1 = new Race();
 		race1.setTrack(Track.michigan);
 		race1.setStage(Stage.QUALIFYING);
-		race1.setTermination(Termination.LAPS, 1);	
+		race1.setTermination(Termination.TICKS, 1000);	
 		
 		Race race2 = new Race();
 		race2.setTrack(Track.michigan);
 		race2.setStage(Stage.QUALIFYING);
-		race2.setTermination(Termination.LAPS, 1);
+		race2.setTermination(Termination.TICKS, 1000);
+		
+		Race race3 = new Race();
+		race3.setTrack(Track.michigan);
+		race3.setStage(Stage.QUALIFYING);
+		race3.setTermination(Termination.TICKS, 1000);	
+		
+		Race race4 = new Race();
+		race4.setTrack(Track.michigan);
+		race4.setStage(Stage.QUALIFYING);
+		race4.setTermination(Termination.TICKS, 1000);
 		
 		Driver driver1 = new ecprac.tbr440.Driver();
 		driver1.init();
 		driver1.loadGenome(population[0]);
 		race1.addCompetitor(driver1);
-		
+				
 		Driver driver2 = new ecprac.tbr440.Driver();
 		driver2.init();
 		driver2.loadGenome(population[1]);
 		race2.addCompetitor(driver2);
+		
+		
+		Driver driver3 = new ecprac.tbr440.Driver();
+		driver3.init();
+		driver3.loadGenome(population[2]);
+		race3.addCompetitor(driver3);
+		
+		Driver driver4 = new ecprac.tbr440.Driver();
+		driver4.init();
+		driver4.loadGenome(population[3]);
+		race4.addCompetitor(driver4);
 
 		// Run in Text Mode
-		System.out.println("Race!");
-		RaceResults results1 = race1.runWithGUI();
+		System.out.println("Race1!");
+		RaceResults results1 = race1.run();		
 		System.out.println("Race2!");
-		RaceResults results2 = race2.run();
+		RaceResults results2 = race2.run();		
+		System.out.println("Race3!");
+		RaceResults results3 = race3.run();
+		System.out.println("Race4!");
+		RaceResults results4 = race4.run();
 		
 		// Fitness = BestLap, except if both did not do at least one lap
-		if( Double.isInfinite(results1.get(driver1).bestLapTime) &&  Double.isInfinite(results2.get(driver2).bestLapTime)){
+		if( Double.isInfinite(results1.get(driver1).bestLapTime) &&  Double.isInfinite(results2.get(driver2).bestLapTime) &&
+			Double.isInfinite(results3.get(driver3).bestLapTime) &&  Double.isInfinite(results4.get(driver4).bestLapTime)){
 			  population[0].fitness = results1.get(driver1).distance;
 			  population[1].fitness = results2.get(driver2).distance;
+			  population[2].fitness = results3.get(driver3).distance;
+			  population[3].fitness = results4.get(driver4).distance;
 		} else {
 			  population[0].fitness = -1 * results1.get(driver1).bestLapTime;
-                          population[1].fitness = -1 * results2.get(driver2).bestLapTime;
+              population[1].fitness = -1 * results2.get(driver2).bestLapTime;
+			  population[2].fitness = -1 * results3.get(driver3).bestLapTime;
+              population[3].fitness = -1 * results4.get(driver4).bestLapTime;
 		}
 		
 		/*Race race = new Race();

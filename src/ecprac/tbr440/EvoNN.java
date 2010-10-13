@@ -5,6 +5,8 @@ import org.neuroph.core.Layer;
 import org.neuroph.core.Neuron;
 import org.neuroph.util.NeuronProperties;
 
+import java.util.Random;
+
 public class EvoNN extends NeuralNetwork {
     
     private Layer inputLayer;
@@ -28,6 +30,7 @@ public class EvoNN extends NeuralNetwork {
         connect();
         initializeWeights(-1., 1.);
         randomizeWeights();
+        debugPrintWeights();
         System.out.println("NN created\n");
     }
 
@@ -73,7 +76,7 @@ public class EvoNN extends NeuralNetwork {
         }
     }
 
-    private void debugPrintWeights() {
+    public void debugPrintWeights() {
         for (Neuron n : inputLayer.getNeurons()) {
             for (org.neuroph.core.Weight w : n.getWeightsVector()) {
                 System.out.printf("i:%f", w.getValue());
@@ -93,7 +96,7 @@ public class EvoNN extends NeuralNetwork {
             System.out.printf("\n");
         }
     }
-    private void debugPrintValues() {
+    public void debugPrintValues() {
         for (Neuron n : inputLayer.getNeurons()) {
             System.out.printf("%f : %f", n.getNetInput(), n.getOutput());
         }
@@ -108,20 +111,84 @@ public class EvoNN extends NeuralNetwork {
         System.out.printf("\n");
     }
     /**
-    * Create a child by mutation
+    * mutates a child with double probability per weight
+    * -probability must be between 0 and 1
     */
-    public EvoNN mutate(int mutationRate) {
-        //TODO
-        return this;
+    public void mutate(double probability) {
+        //TODO: decide on value of change of weight: probabilistic?
+    	//      
+    	Random r = new Random();
+    	double mutation = 0;
+    	
+        for (Neuron n : inputLayer.getNeurons()) {
+            for (org.neuroph.core.Weight w : n.getWeightsVector()) {            	
+            	if (r.nextInt(100) < (int)(probability*100)){
+            		mutation = w.getValue()+ 0.05; 
+            		System.out.print("mutation from i: " + w.getValue()); //debug
+            		w.setValue(mutation);
+            		System.out.println(" to " + w.getValue()); //debug
+            	}
+            }
+        }
+        
+        for (Neuron n : hiddenLayer.getNeurons()) {
+            for (org.neuroph.core.Weight w : n.getWeightsVector()) {
+            	if (r.nextInt(100) < (int)(probability*100)){
+            		mutation = w.getValue()+ 0.05; 
+            		System.out.print("mutation from h: " + w.getValue()); //debug
+            		w.setValue(mutation);
+            		System.out.println(" to " + w.getValue()); //debug
+            	}
+            }
+        } 
+        
+        for (Neuron n : outputLayer.getNeurons()) {
+            for (org.neuroph.core.Weight w : n.getWeightsVector()) {            	
+            	if (r.nextInt(100) < (int)(probability*100)){            		
+            		mutation = w.getValue()+ 0.05; 
+            		System.out.print("mutation from 0: " + w.getValue()); //debug
+            		w.setValue(mutation);
+            		System.out.println(" to " + w.getValue()); //debug
+            	}
+            }
+        }        
     }
     
     /**
-    * Create a child by crossover with another Neural Network
+    * Creates one child by whole arithmetic crossover with another Neural Network
+    * see page 51 of book or slides of chapter 3
+    * - double alpha must be between 0 and 1.
     */
-    public EvoNN crossOver(EvoNN partner) {
-        //TODO
-        return this;
+    public EvoNN crossOver(EvoNN partner, double alpha) {
+        //TODO improve: 3 EvoNN objects has to be iterated at once: this, partner and result
+    	
+    	EvoNN result = new EvoNN();
+    	double recombination = 0;
+    	
+        for (Neuron n : inputLayer.getNeurons()) {
+            for (org.neuroph.core.Weight w : n.getWeightsVector()) {
+            	recombination = w.getValue()*alpha + (1-alpha)*partner.w.getValue(); 
+            	result.w.setValue(recombination);
+            }
+        }
+        
+        for (Neuron n : hiddenLayer.getNeurons()) {
+            for (org.neuroph.core.Weight w : n.getWeightsVector()) {
+            	recombination = w.getValue()*alpha + (1-alpha)*partner.getValue(); 
+            	result.w.setValue(recombination);
+            }
+        }
+        
+        for (Neuron n : outputLayer.getNeurons()) {
+            for (org.neuroph.core.Weight w : n.getWeightsVector()) {
+            	recombination = w.getValue()*alpha + (1-alpha)*partner.w.getValue(); 
+            	result.w.setValue(recombination);
+            }
+        } 
+        
+        return result;
     }
+            
     public void calculate() {
         for (Neuron n : inputLayer.getNeurons()) {
             //n.calculate();
@@ -136,8 +203,8 @@ public class EvoNN extends NeuralNetwork {
 
     public int getAccelerate() {
         double acc = accelerateOutputNeuron.getNetInput();
-        System.out.printf("getacc %f\n", acc);
-        System.out.printf("speed %f\n", speedInputNeuron.getOutput());
+        //System.out.printf("getacc %f\n", acc);
+        //System.out.printf("speed %f\n", speedInputNeuron.getOutput());
         if (acc < 0) return 1; else return 0;
     }
     
@@ -145,5 +212,4 @@ public class EvoNN extends NeuralNetwork {
         //preprocess?
         speedInputNeuron.setOutput(speed);
     }
-
 }
