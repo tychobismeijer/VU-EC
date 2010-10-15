@@ -2,6 +2,17 @@ package ecprac.tbr440;
 
 import ecprac.torcs.genome.IGenome;
 
-public class DanielDrunkGenome implements IGenome {
-    public NeuralNetwork nn;
+public class Genome implements IGenome {    
+   
+    public double fitness;
+    public EvoNN nn;
+  
+    Genome() {
+    	fitness = 1000000000.0;
+    	nn = new EvoNN();
+    }
 }
+
+
+
+

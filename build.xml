@@ -1,0 +1,45 @@
+<project name="ECPrac" default="compile" basedir=".">
+    <description>
+        Evolutionary Neural Network for ECPrac
+    </description>
+  <!-- set global properties for this build -->
+  <property name="src" location="src"/>
+  <property name="build" location="build"/>
+  <property name="dist"  location="dist"/>
+  <path id="project.class.path">
+    <pathelement location="lib/neuroph.jar"/>
+    <pathelement location="lib/ECPRAC-TORCS.jar"/>
+  </path>
+
+  <target name="compile" description="compile the source " >
+    <!-- Compile the java code from ${src} into ${build} -->
+    <mkdir dir="${build}"/>
+    <javac srcdir="${src}" destdir="${build}">
+      <classpath refid="project.class.path"/>
+    </javac>
+  </target>
+
+  <target name="clean"
+        description="clean up" >
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+  </target>
+
+  <target name="jar" depends="compile" description="Create a jar file">
+    <jar destfile="${dist}/ecprac.jar" basedir="${build}">
+      <manifest> 
+        <attribute name="Main-Class" value="ecprac.tbr440.EA"/> 
+	<attribute name="Class-Path" value=". ../lib/neuroph.jar ../lib/ECPRAC-TORCS.jar"/>
+      </manifest>
+    </jar>
+  </target>
+	
+  <target name="run" description="Run the algorithm">
+    <java jar="${dist}/ecprac.jar" fork="true"/>
+  </target>
+
+  <target name="show" description="Show the best">
+    <java jar="${dist}/ecprac.jar" fork="true" args="-show"/>
+  </target>
+</project>

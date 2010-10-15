@@ -1,4 +1,4 @@
-package ecprac.daniel;
+package ecprac.tbr440;
 
 import ecprac.torcs.client.Action;
 import ecprac.torcs.client.SensorModel;
@@ -11,7 +11,10 @@ import ecprac.torcs.genome.IGenome;
 
 public class Driver extends GenomeDriver {
 
-        NeuralNetwork nn;    
+	private double steering;
+	private double trackpos;
+    private EvoNN nn;
+
 
 	public void init() {
 		enableExtras(new AutomatedClutch());
@@ -24,7 +27,9 @@ public class Driver extends GenomeDriver {
 
 		if (genome instanceof Genome) {
 			Genome llgenome = (Genome) genome;
-			nn = llgenome.nn;
+            steering = 0.1;
+			trackpos = 0.2;
+            nn = llgenome.nn;
 		} else {
 			System.err.println("Invalid Genome assigned");
 		}
@@ -32,13 +37,23 @@ public class Driver extends GenomeDriver {
 	}
 
 	public void control(Action action, SensorModel sensors) {
+        action.steering = 0.0;
 
-	// ask neural network	
-		
+        nn.setSpeed(sensors.getSpeed());
+        nn.calculate();
+        action.accelerate = nn.getAccelerate();
+        
+        // We can leave this here to steer stupid drivers back on track
+		if(sensors.getTrackPosition() < -1 * trackpos) { // from the track
+			action.steering = steering * Math.abs(sensors.getTrackPosition()); 		// steer right
+		} 
+		if(sensors.getTrackPosition() > trackpos){ // from the track
+			action.steering =  -1 *  steering * Math.abs(sensors.getTrackPosition());  // steer left
+		}
 	}
 
 	public String getDriverName() {
-		return "";
+		return "Kai, Andrea and Tycho";
 	}
 
 	public float[] initAngles() {
