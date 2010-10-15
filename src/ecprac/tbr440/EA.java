@@ -35,11 +35,21 @@ public class EA {
     	c = new FitnessComparator();
     }
     
+    private void test() {
+        System.out.println("-----Mutation Test-----");
+        for (Genome g : population) {
+           System.out.println("---");
+           g.nn.mutate(0.5, 5.0, 0.5, 0.5, 0.5, 0.5);
+           g.nn.debugPrintWeights();
+        }
+    }
+
     public void run() {
     	//TODO: parent selection
 		
     	// initialize population
-		initialize();		
+		initialize();
+                test();
 		evaluateAll();
 		evals += POPULATION_SIZE;
 		Arrays.sort(population, c); //genomes sorted from worst to best fitness
@@ -109,7 +119,7 @@ public class EA {
 
     // -mutationProbability must be between 0 and 1
     private void mutate(Genome genome, double mutationProbability) {
-        genome.nn.mutate(mutationProbability); 
+        //genome.nn.mutate(mutationProbability); 
     }
 	
 	private void initialize() {
