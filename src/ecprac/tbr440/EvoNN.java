@@ -3,6 +3,7 @@ package ecprac.tbr440;
 import org.neuroph.core.NeuralNetwork;
 import org.neuroph.core.Layer;
 import org.neuroph.core.Neuron;
+import org.neuroph.nnet.comp.BiasNeuron;
 import org.neuroph.util.NeuronProperties;
 
 import java.util.Random;
@@ -22,7 +23,10 @@ public class EvoNN extends NeuralNetwork {
     private Neuron accelerateOutputNeuron;
     private Neuron steeringOutputNeuron;
 
+    private Neuron biasNeuron = new BiasNeuron();
+
     EvoNN() {
+        super()
         setupInputLayer();
         setupHiddenLayer();
         setupOutputLayer();
@@ -105,6 +109,24 @@ public class EvoNN extends NeuralNetwork {
         //preprocess?
         angleInputNeuron.setInput(angle);
     }
+    
+    //**
+    // Compatability distance
+    // from NEAT
+    // Evolving Neural Networks through Augmenting Topologies by Kenneth O.
+    // Stanly and Risto Miikkulainen. 2002. Evolutionary Computation 10(2)
+    // pg. 110
+    public double similiraty(EvoNN other) {
+        double c1 = 1.0;
+        double c2 = 1.0;
+        double c3 = 1.0;
+        int E; // = excess neurons
+        int D; // = disjoint neurons
+        int N; // = network size
+        double W; // = avarage of weight differences
+        // return ((c1*E)/N)+((c2*D)/N)+(c3*W)
+        return 0.0;
+    }
 
     // DEBUG FUNCTIONS
     public void debugPrintWeights() {
@@ -141,6 +163,9 @@ public class EvoNN extends NeuralNetwork {
         }
         System.out.printf("\n");
     }
+
+
+
     private void setupInputLayer() {
         NeuronProperties props = new NeuronProperties(
             org.neuroph.util.WeightsFunctionType.WEIGHTED_INPUT,
@@ -155,6 +180,7 @@ public class EvoNN extends NeuralNetwork {
             trackInputNeurons[i] = inputLayer.getNeuronAt(i+3);
         }
         setInputNeurons(inputLayer.getNeurons());
+        this.addLayer(inputLayer);
     }
 
     private void setupOutputLayer() {
@@ -166,6 +192,7 @@ public class EvoNN extends NeuralNetwork {
             new org.neuroph.core.transfer.Sgn());
         outputLayer.addNeuron(accelerateOutputNeuron);
         setOutputNeurons(outputLayer.getNeurons());
+        this.addLayer(outputLayer);
     }
 
     private void setupHiddenLayer() {
@@ -176,6 +203,7 @@ public class EvoNN extends NeuralNetwork {
                 new org.neuroph.core.input.Sum()),
             new org.neuroph.core.transfer.Sgn());
         hiddenLayer.addNeuron(n);
+        this.addLayer(hiddenLayer);
     }
 
     private void connect() {
@@ -188,6 +216,7 @@ public class EvoNN extends NeuralNetwork {
             for (Neuron outputNeuron : outputLayer.getNeurons()) {
                 outputNeuron.addInputConnection(hiddenNeuron);
             }
+            hiddenNeuron.addInputConnection(biasNeuron);
         }
     }
 
@@ -217,7 +246,7 @@ public class EvoNN extends NeuralNetwork {
     }
 
     private void removeConnection() {
-        //randomOutputNeuron.
+        //TODO
     }
 
     private void addNeuron() {
@@ -228,6 +257,7 @@ public class EvoNN extends NeuralNetwork {
             new org.neuroph.core.transfer.Sgn());
         hiddenLayer.addNeuron(n);
         n.addInputConnection(randomInputNeuron());
+        n.addInputConnection(biasNeuron);
         randomOutputNeuron().addInputConnection(n);
     }
 
