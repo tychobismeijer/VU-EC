@@ -27,6 +27,7 @@
   </target>
 
   <target name="jar" depends="compile" description="Create a jar file">
+    <mkdir dir="${dist}"/>
     <jar destfile="${dist}/ecprac.jar" basedir="${build}">
       <manifest> 
         <attribute name="Main-Class" value="ecprac.tbr440.EA"/> 
