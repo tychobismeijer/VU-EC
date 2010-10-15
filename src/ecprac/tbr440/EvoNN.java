@@ -14,9 +14,13 @@ public class EvoNN extends NeuralNetwork {
     private Layer outputLayer;
     private Layer hiddenLayer;
 
-    private Neuron speedInputNeuron;
+    private Neuron angleInputNeuron;
+    private Neuron[] trackInputNeurons;
+    private Neuron speedXInputNeuron;
+    private Neuron speedYInputNeuron;
 
     private Neuron accelerateOutputNeuron;
+    private Neuron steeringOutputNeuron;
 
     EvoNN() {
         setupInputLayer();
@@ -52,7 +56,7 @@ public class EvoNN extends NeuralNetwork {
     }
     
     /**
-     * Calculates the neural network after the input neurons are set
+     /* Calculates the neural network after the input neurons are set
      */
     public void calculate() {
         for (Neuron n : inputLayer.getNeurons()) {
@@ -70,18 +74,36 @@ public class EvoNN extends NeuralNetwork {
      * get an output from the network
      */
     public int getAccelerate() {
-        double acc = accelerateOutputNeuron.getNetInput();
+        double acc = accelerateOutputNeuron.getOutput();
         //System.out.printf("getacc %f\n", acc);
         //System.out.printf("speed %f\n", speedInputNeuron.getOutput());
         if (acc < 0) return 1; else return 0;
+    }
+    public double getSteering() {
+        double steering = steeringOutputNeuron.getNetInput();
+        return Math.sin(steering);
     }
     
     /**
      * set an input neuron
      */
-    public void setSpeed(double speed) {
+    public void setSpeedX(double speedX) {
         //preprocess?
-        speedInputNeuron.setOutput(speed);
+        speedXInputNeuron.setInput(speedX);
+    }
+    public void setSpeedY(double speedY) {
+        //preprocess?
+        speedYInputNeuron.setInput(speedY);
+    }
+    public void setTrack(int[] trackSensors) {
+        //preprocess?
+        for (int i=0; i < trackSensors.length; i++) {
+            trackInputNeurons[i].setInput(trackSensors[i]);
+        }
+    }
+    public void setAngle(double angle) {
+        //preprocess?
+        angleInputNeuron.setInput(angle);
     }
 
     // DEBUG FUNCTIONS
@@ -124,8 +146,14 @@ public class EvoNN extends NeuralNetwork {
             org.neuroph.util.WeightsFunctionType.WEIGHTED_INPUT,
             org.neuroph.util.SummingFunctionType.SUM,
             org.neuroph.util.TransferFunctionType.LINEAR);
-        inputLayer = new Layer(1, props);
-        speedInputNeuron = inputLayer.getNeuronAt(0);
+        inputLayer = new Layer(23, props);
+        angleInputNeuron = inputLayer.getNeuronAt(0);
+        speedXInputNeuron = inputLayer.getNeuronAt(1);
+        speedYInputNeuron = inputLayer.getNeuronAt(2);
+        trackInputNeurons = new Neuron[20];
+        for(int i=0; i<20; i++) {
+            trackInputNeurons[i] = inputLayer.getNeuronAt(i+3);
+        }
         setInputNeurons(inputLayer.getNeurons());
     }
 
@@ -185,11 +213,11 @@ public class EvoNN extends NeuralNetwork {
     }
 
     private void addConnection() {
-        //TODO
+        randomOutputNeuron().addInputConnection(randomInputNeuron());
     }
 
     private void removeConnection() {
-        //TODO
+        //randomOutputNeuron.
     }
 
     private void addNeuron() {
