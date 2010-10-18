@@ -13,80 +13,51 @@ import ecprac.torcs.race.Race.Track;
 
 public class EA {	 	
 
-    final static int POPULATION_SIZE = 4,
-                     EVALUATIONS = 400,
-                     NR_OF_CHILDREN = 2;
-    final static double ALPHA = 0.45,                 //must be between 0 and 1.
-    					MUTATION_PROBABILITY = 0.1;   //must be between 0 and 1.
-    
+    final static int POPULATION_SIZE = 10,
+                     EVALUATIONS = 1000;
+                     
+    final static double //ALPHA = 0.45,      //must be between 0 and 1.
+    					P_WEIGHTS = 0.5;   //must be between 0 and 1.    
     
     Random r;
-    Genome[] population;
+    Genome[] population,
+    		 children,
+    		 populationAndChildren;
     int evals;
     double globalFitness,
     	   alpha;	
     FitnessComparator c;
+    
    	
     EA() {
     	r = new Random(); 
-    	population = new Genome[POPULATION_SIZE];    	
+    	population = new Genome[POPULATION_SIZE];
+    	children = new Genome[POPULATION_SIZE];
+    	populationAndChildren = new Genome[POPULATION_SIZE*2];
     	evals = 0;
     	globalFitness = 0.0;
     	c = new FitnessComparator();
     }
     
-    private void test() {
-        System.out.println("-----Mutation Test-----");
-        for (Genome g : population) {
-           System.out.println("---");
-           g.nn.mutate(0.5, 5.0, 0.5, 0.5, 0.5, 0.5);
-           g.nn.debugPrintWeights();
-        }
-    }
-
     public void run() {
-    	//TODO: parent selection
-		
-    	// initialize population
-		initialize();
-                test();
-		evaluateAll();
+   		initialize();		
+		evaluateAll(population);
 		evals += POPULATION_SIZE;
-		Arrays.sort(population, c); //genomes sorted from worst to best fitness
-		
-		//debug
-		System.out.println("-------------Genomes------------------");
-		for (int i = 0; i < POPULATION_SIZE; i++){
-			System.out.println("Fitness is: " + population[i].fitness);
-			System.out.println("Percentage is: " + (double)evals/EVALUATIONS);
-			System.out.println("Weights: ");
-			population[i].nn.debugPrintWeights();
-			System.out.println("");
-		}
-		System.out.println("-------------/Genomes-----------------");
-		
+		Arrays.sort(population, c); //genomes sorted from worst to best fitness		
+
 		try {
-			Utilities.saveGenome(population[POPULATION_SIZE-1], "bestInitialization.genome");
-			
-		
-			// the evolutionary loop
-			while (evals < EVALUATIONS) {
-				//recombineAndMutate(population[POPULATION_SIZE-1], population[POPULATION_SIZE-2], ALPHA, MUTATION_PROBABILITY); //recombine best two parents
-				mutate(population[0], MUTATION_PROBABILITY); //debug: mutate worst
-				evaluateAll();	
+			Utilities.saveGenome(population[POPULATION_SIZE-1], "bestInitialization.genome");			
+			while (evals < EVALUATIONS) { // the evolutionary loop													
+				for(int i = 0; i < POPULATION_SIZE; i++){
+					//TODO: write function int parentSelection()					
+					//children[i] = mutate(population[parentSelection()], P_WEIGHTS);
+					children[i] = mutate(population[i], P_WEIGHTS); //debug: mutate all
+				}				
+				evaluateAll(children);					
 				evals += POPULATION_SIZE;
-				Arrays.sort(population, c); //genomes sorted from worst to best fitness
-				
-				//debug
-				System.out.println("-------------Genomes------------------");
-				for (int i = 0; i < POPULATION_SIZE; i++){
-					System.out.println("Fitness is: " + population[i].fitness);
-					System.out.println("Percentage is: " + (double)evals/EVALUATIONS);
-					System.out.println("Weights: ");
-					population[i].nn.debugPrintWeights();
-					System.out.println("");
-				}
-				System.out.println("-------------/Genomes-----------------");
+				Arrays.sort(children, c); 				
+				survivorSelection();
+				debugPrintGenome(); //debug
 			
 				if ((double)evals/EVALUATIONS == 0.05) Utilities.saveGenome(population[POPULATION_SIZE-1], "best5%.genome");
 				else if ((double)evals/EVALUATIONS == 0.10) Utilities.saveGenome(population[POPULATION_SIZE-1], "best10%.genome");
@@ -98,29 +69,18 @@ public class EA {
 			e.printStackTrace();
 		}
 	}
-	
-    //whole arithmetic crossover followed with mutation 
-    // -alpha must be between 0 and 1
-    // -mutationProbability must be between 0 and 1
-    private void recombineAndMutate(Genome parent1, Genome parent2, double alpha, double mutationProbability) {
-    	Genome child1 = new Genome();
-    	Genome child2 = new Genome();
-    	
-    	child1.nn = parent1.nn.crossOver(parent2.nn, ALPHA);
-    	mutate(child1, mutationProbability);    	
-    	child2.nn = parent2.nn.crossOver(parent1.nn, ALPHA);
-    	mutate(child2, mutationProbability);
-    	    	    	
-    	population[0] = child1; //the childs replace the genomes with worst fitnesses
-    	population[1] = child2; //the childs replace the genomes with worst fitnesses 
-    	Arrays.sort(population, c);
-    }
-    
-
-    // -mutationProbability must be between 0 and 1
-    private void mutate(Genome genome, double mutationProbability) {
-        //genome.nn.mutate(mutationProbability); 
-    }
+        
+    private void debugPrintGenome() {
+		System.out.println("-------------Genomes------------------");
+		for (int i = 0; i < POPULATION_SIZE; i++){
+			System.out.println("Fitness is: " + population[i].fitness);
+			System.out.println("Percentage is: " + (double)evals/EVALUATIONS);
+			System.out.println("Weights: ");
+			population[i].nn.debugPrintWeights();
+			System.out.println("");
+		}
+		System.out.println("-------------/Genomes-----------------");
+	}
 	
 	private void initialize() {
 		for (int i = 0; i < POPULATION_SIZE; i++) {
@@ -130,79 +90,43 @@ public class EA {
 		}
 	}
 	
-	public void evaluateAll() {
-
-		Race race1 = new Race();
-		race1.setTrack(Track.michigan);
-		race1.setStage(Stage.QUALIFYING);
-		race1.setTermination(Termination.TICKS, 1000);	
-		
-		Race race2 = new Race();
-		race2.setTrack(Track.michigan);
-		race2.setStage(Stage.QUALIFYING);
-		race2.setTermination(Termination.TICKS, 1000);
-		
-		Race race3 = new Race();
-		race3.setTrack(Track.michigan);
-		race3.setStage(Stage.QUALIFYING);
-		race3.setTermination(Termination.TICKS, 1000);	
-		
-		Race race4 = new Race();
-		race4.setTrack(Track.michigan);
-		race4.setStage(Stage.QUALIFYING);
-		race4.setTermination(Termination.TICKS, 1000);
-		
-		Driver driver1 = new ecprac.tbr440.Driver();
-		driver1.init();
-		driver1.loadGenome(population[0]);
-		race1.addCompetitor(driver1);
-				
-		Driver driver2 = new ecprac.tbr440.Driver();
-		driver2.init();
-		driver2.loadGenome(population[1]);
-		race2.addCompetitor(driver2);
-		
-		
-		Driver driver3 = new ecprac.tbr440.Driver();
-		driver3.init();
-		driver3.loadGenome(population[2]);
-		race3.addCompetitor(driver3);
-		
-		Driver driver4 = new ecprac.tbr440.Driver();
-		driver4.init();
-		driver4.loadGenome(population[3]);
-		race4.addCompetitor(driver4);
-
-		// Run in Text Mode
-		System.out.println("Race1!");
-		RaceResults results1 = race1.run();		
-		System.out.println("Race2!");
-		RaceResults results2 = race2.run();		
-		System.out.println("Race3!");
-		RaceResults results3 = race3.run();
-		System.out.println("Race4!");
-		RaceResults results4 = race4.run();
-		
-		// Fitness = BestLap, except if both did not do at least one lap
-		if( Double.isInfinite(results1.get(driver1).bestLapTime) &&  Double.isInfinite(results2.get(driver2).bestLapTime) &&
-			Double.isInfinite(results3.get(driver3).bestLapTime) &&  Double.isInfinite(results4.get(driver4).bestLapTime)){
-			  population[0].fitness = results1.get(driver1).distance;
-			  population[1].fitness = results2.get(driver2).distance;
-			  population[2].fitness = results3.get(driver3).distance;
-			  population[3].fitness = results4.get(driver4).distance;
-		} else {
-			  population[0].fitness = -1 * results1.get(driver1).bestLapTime;
-              population[1].fitness = -1 * results2.get(driver2).bestLapTime;
-			  population[2].fitness = -1 * results3.get(driver3).bestLapTime;
-              population[3].fitness = -1 * results4.get(driver4).bestLapTime;
+    private int parentSelection() {
+        //TODO
+    	return 1;
+    }
+	
+    /**
+    *  pWeights: propability a weight gets mutated must be between 0 and 1
+    */
+	private Genome mutate(Genome genome, double pWeights) {
+	    Genome result = new Genome();
+	    result.nn = genome.nn.mutate(pWeights, 5, 0.5, 0.5, 0.5, 0.5); 
+	        
+	    return result;
+	}
+	
+	//new population are the ten most fit individuals from children and population
+	private void survivorSelection() {
+		for(int i = 0; i < POPULATION_SIZE; i++){
+			populationAndChildren[i] = children[i];					
 		}
-		
-		/*Race race = new Race();
+		for(int i = POPULATION_SIZE; i < POPULATION_SIZE*2; i++){
+			populationAndChildren[i] = population[i-POPULATION_SIZE];					
+		}
+		Arrays.sort(populationAndChildren, c);
+		for(int i = POPULATION_SIZE; i < POPULATION_SIZE*2; i++){
+			population[i-POPULATION_SIZE] = populationAndChildren[i];					
+		}
+	}
+	
+	public void evaluateAll(Genome[] population) {
+		Race race = new Race();
 		
 		//  One of the two ovals
-		race.setTrack( Track.fromIndex(  (evals / 2) % 2 ));
+		//race.setTrack( Track.fromIndex(  (evals / 2) % 2 ));
+		race.setTrack(Track.michigan);
 		race.setStage(Stage.RACE);
-		race.setTermination(Termination.LAPS, 1);
+		race.setTermination(Termination.TICKS, 1000);
 		
 		// Add driver 1
 		Driver driver1 = new Driver();
@@ -228,37 +152,37 @@ public class EA {
 		driver4.loadGenome(population[3]);
 		race.addCompetitor(driver4);
 		
-				// Add driver 5
+		// Add driver 5
 		Driver driver5 = new Driver();
 		driver5.init();
 		driver5.loadGenome(population[4]);
 		race.addCompetitor(driver5);
 		
-				// Add driver 6
+		// Add driver 6
 		Driver driver6 = new Driver();
 		driver6.init();
 		driver6.loadGenome(population[5]);
 		race.addCompetitor(driver6);
 		
-				// Add driver 7
+		// Add driver 7
 		Driver driver7 = new Driver();
 		driver7.init();
 		driver7.loadGenome(population[6]);
 		race.addCompetitor(driver7);
 		
-				// Add driver 8
+		// Add driver 8
 		Driver driver8 = new Driver();
 		driver8.init();
 		driver8.loadGenome(population[7]);
 		race.addCompetitor(driver8);
 		
-				// Add driver 9
+		// Add driver 9
 		Driver driver9 = new Driver();
 		driver9.init();
 		driver9.loadGenome(population[8]);
 		race.addCompetitor(driver9);
 		
-				// Add driver 10
+		// Add driver 10
 		Driver driver10 = new Driver();
 		driver10.init();
 		driver10.loadGenome(population[9]);
@@ -294,7 +218,7 @@ public class EA {
 			  population[7].fitness = -1 * results.get(driver8).bestLapTime;
 			  population[8].fitness = -1 * results.get(driver9).bestLapTime;
 			  population[9].fitness = -1 * results.get(driver10).bestLapTime;
-		}*/
+		}
 		
 	}
 	
