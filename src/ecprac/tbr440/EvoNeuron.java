@@ -5,7 +5,7 @@ import org.neuroph.core.input.InputFunction;
 import org.neuroph.core.transfer.TransferFunction;
 import java.util.Random;
 
-public class EvoNeuron extends Neuron {
+public class EvoNeuron extends Neuron implements Cloneable{
     int structureId;
 
     EvoNeuron() {
@@ -17,5 +17,19 @@ public class EvoNeuron extends Neuron {
         super(inputFunction, transferFunction);
         Random r = new Random();
         structureId = r.nextInt();
+    }
+    
+    public Object clone(){
+    	EvoNeuron clone;
+
+        try{
+            clone = (EvoNeuron) super.clone();
+        }catch(CloneNotSupportedException e){
+        	throw new Error("EvoNeuron not clonable"); 
+        }
+        
+        clone.structureId = structureId; //is this line needed?
+        
+        return clone;
     }
 }

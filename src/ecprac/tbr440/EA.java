@@ -14,9 +14,9 @@ import ecprac.torcs.race.Race.Track;
 public class EA {	 	
 
     final static int POPULATION_SIZE = 10,
-                     EVALUATIONS = 1000;
+                     EVALUATIONS = 200;
                      
-    final static double //ALPHA = 0.45,      //must be between 0 and 1.
+    final static double //ALPHA = 0.45,    //must be between 0 and 1.
     					P_WEIGHTS = 0.5;   //must be between 0 and 1.    
     
     Random r;
@@ -43,7 +43,9 @@ public class EA {
    		initialize();		
 		evaluateAll(population);
 		evals += POPULATION_SIZE;
-		Arrays.sort(population, c); //genomes sorted from worst to best fitness		
+		Arrays.sort(population, c); //genomes sorted from worst to best fitness	
+		System.out.println("Initialization:"); //debug
+		debugPrintGenome(); //debug
 
 		try {
 			Utilities.saveGenome(population[POPULATION_SIZE-1], "bestInitialization.genome");			
@@ -55,8 +57,19 @@ public class EA {
 				}				
 				evaluateAll(children);					
 				evals += POPULATION_SIZE;
-				Arrays.sort(children, c); 				
-				survivorSelection();
+				Arrays.sort(children, c);
+				System.out.println("Children:"); //debug
+				System.out.println("-------------Genomes------------------"); //debug
+				for (int i = 0; i < POPULATION_SIZE; i++){ //debug
+					System.out.println("Fitness is: " + children[i].fitness); //debug
+					System.out.println("Percentage is: " + (double)evals/EVALUATIONS); //debug
+					System.out.println("Weights: "); //debug
+					//population[i].nn.debugPrintWeights(); //debug
+					System.out.println(""); //debug
+				}
+				System.out.println("-------------/Genomes-----------------"); //debug
+				survivorSelection();				
+				System.out.println("New population:"); //debug
 				debugPrintGenome(); //debug
 			
 				if ((double)evals/EVALUATIONS == 0.05) Utilities.saveGenome(population[POPULATION_SIZE-1], "best5%.genome");
@@ -76,7 +89,7 @@ public class EA {
 			System.out.println("Fitness is: " + population[i].fitness);
 			System.out.println("Percentage is: " + (double)evals/EVALUATIONS);
 			System.out.println("Weights: ");
-			population[i].nn.debugPrintWeights();
+			//population[i].nn.debugPrintWeights();
 			System.out.println("");
 		}
 		System.out.println("-------------/Genomes-----------------");
