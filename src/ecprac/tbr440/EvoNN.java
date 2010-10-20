@@ -229,7 +229,13 @@ public class EvoNN extends NeuralNetwork implements Cloneable{
                 new org.neuroph.core.input.WeightedInput(),
                 new org.neuroph.core.input.Sum()),
             new org.neuroph.core.transfer.Sgn());
+        steeringOutputNeuron = new Neuron(
+            new org.neuroph.core.input.InputFunction(
+                new org.neuroph.core.input.WeightedInput(),
+                new org.neuroph.core.input.Sum()),
+            new org.neuroph.core.transfer.Linear());
         outputLayer.addNeuron(accelerateOutputNeuron);
+        outputLayer.addNeuron(steeringOutputNeuron);
         setOutputNeurons(outputLayer.getNeurons());
         this.addLayer(outputLayer);
     }
