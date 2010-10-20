@@ -45,10 +45,10 @@ public class EvoNN extends NeuralNetwork implements Cloneable{
     *  sigmaWeigts: standardeviation of the Gaussian mutation of weights
     *  pAddN, pRemN, pAddC, pRemC: propability of an strucutural mutation
     */
-    public EvoNN mutate(double pWeights, double sigmaWeights, double pAddN,
+    public void mutate(double pWeights, double sigmaWeights, double pAddN,
             double pRemN, double pAddC, double pRemC) {
-        //mutateWeights(pWeights, sigmaWeights);
-        return mutateStructure(mutateWeights(pWeights, sigmaWeights), pAddN, pRemN, pAddC, pRemC);
+        mutateWeights(pWeights, sigmaWeights);
+        mutateStructure(pAddN, pRemN, pAddC, pRemC);
     }
 
     /**
@@ -266,22 +266,20 @@ public class EvoNN extends NeuralNetwork implements Cloneable{
     }
 
 
-    private EvoNN mutateStructure(EvoNN result, double pAddN, double pRemN, double pAddC, double pRemC) {
+    private void mutateStructure(double pAddN, double pRemN, double pAddC, double pRemC) {
     	Random r = new Random();
         if (r.nextDouble() < pAddN) {
-        	result.addNeuron();
+        	addNeuron();
         }
         if (r.nextDouble() < pRemN) {
-        	result.removeNeuron();
+        	removeNeuron();
         }
         if (r.nextDouble() < pAddC) {
-        	result.addConnection();
+        	addConnection();
         }
         if (r.nextDouble() < pRemC) {
-        	result.removeConnection();
+        	removeConnection();
         }
-        
-        return result;
     }
 
     private void removeNeuron() {
@@ -328,12 +326,11 @@ public class EvoNN extends NeuralNetwork implements Cloneable{
         }
     }
 
-    private EvoNN mutateWeights(double probability, double sigma) {     
+    private void mutateWeights(double probability, double sigma) {
     	Random r = new Random();
-    	EvoNN result = (EvoNN) this.clone();
     	double mutation = 0;
     	
-        for (Neuron n : result.inputLayer.getNeurons()) {
+        for (Neuron n : inputLayer.getNeurons()) {
             for (org.neuroph.core.Weight w : n.getWeightsVector()) {            	
             	if (r.nextDouble() < probability) {
             		mutation = w.getValue()+(r.nextGaussian()*sigma); 
@@ -344,7 +341,7 @@ public class EvoNN extends NeuralNetwork implements Cloneable{
             }
         }
         
-        for (Neuron n : result.hiddenLayer.getNeurons()) {
+        for (Neuron n : hiddenLayer.getNeurons()) {
             for (org.neuroph.core.Weight w : n.getWeightsVector()) {
             	if (r.nextDouble() < probability) {
             		mutation = w.getValue()+(r.nextGaussian()*sigma); 
@@ -355,7 +352,7 @@ public class EvoNN extends NeuralNetwork implements Cloneable{
             }
         } 
         
-        for (Neuron n : result.outputLayer.getNeurons()) {
+        for (Neuron n : outputLayer.getNeurons()) {
             for (org.neuroph.core.Weight w : n.getWeightsVector()) {            	
             	if (r.nextDouble() < probability) {            		
             		mutation = w.getValue()+(r.nextGaussian()*sigma); 
@@ -365,55 +362,5 @@ public class EvoNN extends NeuralNetwork implements Cloneable{
             	}
             }
         }
-        
-        return result;
     }
-    
-    public Object clone(){
-    	//TODO: improve to deep copy instead of shallow copy
-    	EvoNN clone;
-    	        
-    	try{
-            clone = (EvoNN) super.clone();
-        }catch(CloneNotSupportedException e){
-        	throw new Error("EvoNN not clonable"); 
-        }
-        
-    	/*Vector<Neuron> inputNeuronVector = inputLayer.getNeurons(),
-    				   hiddenNeuronVector = hiddenLayer.getNeurons(),
-    				   outputNeuronVector = outputLayer.getNeurons(),
-    				   cloneInputNeuronVector = clone.inputLayer.getNeurons(),
-    				   cloneHiddenNeuronVector = clone.hiddenLayer.getNeurons(),
-    				   cloneOutputNeuronVector = clone.outputLayer.getNeurons();
-        
-        for (int i = 0; i  < inputNeuronVector.size(); i++) {
-            for (int j = 0; j < inputNeuronVector.elementAt(i).getWeightsVector().size(); j++){
-            	org.neuroph.core.Weight w = inputNeuronVector.elementAt(i).getWeightsVector().elementAt(j);
-            	org.neuroph.core.Weight wClone = cloneInputNeuronVector.elementAt(i).getWeightsVector().elementAt(j);
-            	wClone.setValue(w.getValue());
-            }            	
-        }
-        
-        for (int i = 0; i  < hiddenNeuronVector.size(); i++) {
-            for (int j = 0; j < hiddenNeuronVector.elementAt(i).getWeightsVector().size(); j++){
-            	org.neuroph.core.Weight w = hiddenNeuronVector.elementAt(i).getWeightsVector().elementAt(j);
-            	org.neuroph.core.Weight wClone = cloneHiddenNeuronVector.elementAt(i).getWeightsVector().elementAt(j);
-            	wClone.setValue(w.getValue());
-            }            	
-        }
-        
-        for (int i = 0; i  < outputNeuronVector.size(); i++) {
-            for (int j = 0; j < outputNeuronVector.elementAt(i).getWeightsVector().size(); j++){
-            	org.neuroph.core.Weight w = outputNeuronVector.elementAt(i).getWeightsVector().elementAt(j);
-            	org.neuroph.core.Weight wClone = cloneOutputNeuronVector.elementAt(i).getWeightsVector().elementAt(j);
-            	wClone.setValue(w.getValue());
-            }            	
-        }*/ 
-        
-        
-            	
-        return clone;
-    }
-    
-            
 }
