@@ -39,7 +39,7 @@ public class Driver extends GenomeDriver {
 	public void control(Action action, SensorModel sensors) {
         action.steering = 0.0;
 
-        nn.setSpeed(sensors.getSpeed());
+        nn.setSpeedX(sensors.getSpeed());
         nn.calculate();
         action.accelerate = nn.getAccelerate();
         
