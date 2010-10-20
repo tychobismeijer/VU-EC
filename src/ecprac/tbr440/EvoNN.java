@@ -5,6 +5,7 @@ import org.neuroph.core.Layer;
 import org.neuroph.core.Neuron;
 import org.neuroph.nnet.comp.BiasNeuron;
 import org.neuroph.util.NeuronProperties;
+import org.neuroph.core.Connection;
 
 import java.util.Random;
 import java.util.Vector;
@@ -117,16 +118,51 @@ public class EvoNN extends NeuralNetwork implements Cloneable{
     // Evolving Neural Networks through Augmenting Topologies by Kenneth O.
     // Stanly and Risto Miikkulainen. 2002. Evolutionary Computation 10(2)
     // pg. 110
-    public double similiraty(EvoNN other) {
+    public double similarity(EvoNN other) {
         double c1 = 1.0;
         double c2 = 1.0;
         double c3 = 1.0;
-        int E; // = excess neurons
-        int D; // = disjoint neurons
-        int N; // = network size
-        double W; // = avarage of weight differences
-        // return ((c1*E)/N)+((c2*D)/N)+(c3*W)
-        return 0.0;
+        int E = Math.abs(this.getNeuronsCount() - other.getNeuronsCount()); 
+        int N = this.getNeuronsCount();
+        int J = 0;
+        double W_total = 0;
+        int W_n = 0;
+        for (Neuron neuron : hiddenLayer.getNeurons()) {
+            if (neuron instanceof EvoNeuron) {
+            for (Neuron other_neuron : other.hiddenLayer.getNeurons()) {
+                if ((other_neuron instanceof EvoNeuron) &&
+                        ((EvoNeuron) neuron).structureId ==
+                        ((EvoNeuron) other_neuron).structureId) {
+                    for (int i=0; i<inputLayer.getNeuronsCount(); i++) {
+                        Connection c = 
+                            neuron.getConnectionFrom(inputLayer.getNeuronAt(i));
+                        Connection c_other =
+                            other_neuron.getConnectionFrom(other.inputLayer.getNeuronAt(i));
+                        if (c != null && c_other != null) {
+                            W_total = c.getWeight().getValue() -
+                                c_other.getWeight().getValue();
+                            W_n++;
+                        }
+                    }
+                    for (int i=0; i<outputLayer.getNeuronsCount(); i++) {
+                        Connection c = 
+                            outputLayer.getNeuronAt(i).getConnectionFrom(neuron);
+                        Connection c_other =
+                            other.outputLayer.getNeuronAt(i).getConnectionFrom(other_neuron);
+                        if (c != null && c_other != null) {
+                            W_total = c.getWeight().getValue() -
+                                c_other.getWeight().getValue();
+                            W_n++;
+                        }
+                    }
+                    J++;
+                }
+            }}
+        }
+        double W = W_total / W_n;
+        int D = N - J;
+        System.out.printf("D:%d E:%d W:%f", J, E, W);
+        return ((c1*E)/N)+((c2*D)/N)+(c3*W);
     }
 
     // DEBUG FUNCTIONS
@@ -164,8 +200,10 @@ public class EvoNN extends NeuralNetwork implements Cloneable{
         }
         System.out.printf("\n");
     }
-
-
+	
+	int getNeuronsCount() {
+        return hiddenLayer.getNeuronsCount();
+    }
 
     private void setupInputLayer() {
         NeuronProperties props = new NeuronProperties(

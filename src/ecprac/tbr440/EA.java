@@ -54,7 +54,8 @@ public class EA {
 					//TODO: write function int parentSelection()					
 					//children[i] = mutate(population[parentSelection()], P_WEIGHTS);
 					Utilities.saveGenome(population[i], "child.genome");
-					children[i] = mutate((Genome) Utilities.loadGenome("child.genome"), P_WEIGHTS); //debug: mutate all
+					children[i] = mutate((Genome) Utilities.loadGenome("child.genome"), P_WEIGHTS);
+					System.out.printf("simil: %f\n", children[i].nn.similarity(population[i].nn));
 				}				
 				evaluateAll(children);					
 				evals += POPULATION_SIZE;
