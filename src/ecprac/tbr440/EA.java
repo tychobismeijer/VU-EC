@@ -53,7 +53,8 @@ public class EA {
 				for(int i = 0; i < POPULATION_SIZE; i++){
 					//TODO: write function int parentSelection()					
 					//children[i] = mutate(population[parentSelection()], P_WEIGHTS);
-					children[i] = mutate(population[i], P_WEIGHTS); //debug: mutate all
+					Utilities.saveGenome(population[i], "child.genome");
+					children[i] = mutate((Genome) Utilities.loadGenome("child.genome"), P_WEIGHTS); //debug: mutate all
 				}				
 				evaluateAll(children);					
 				evals += POPULATION_SIZE;
