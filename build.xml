@@ -6,6 +6,7 @@
   <property name="src" location="src"/>
   <property name="build" location="build"/>
   <property name="dist"  location="dist"/>
+  <property name="include"  location="include"/>
   <path id="project.class.path">
     <pathelement location="lib/neuroph.jar"/>
     <pathelement location="lib/ECPRAC-TORCS.jar"/>
@@ -28,11 +29,13 @@
 
   <target name="jar" depends="compile" description="Create a jar file">
     <mkdir dir="${dist}"/>
-    <jar destfile="${dist}/ecprac.jar" basedir="${build}">
+    <jar destfile="${dist}/ecprac.jar">
       <manifest> 
         <attribute name="Main-Class" value="ecprac.tbr440.EA"/> 
-	<attribute name="Class-Path" value=". ../lib/neuroph.jar ../lib/ECPRAC-TORCS.jar"/>
+	<attribute name="Class-Path" value="../lib/ ../lib/ECPRAC-TORCS.jar"/>
       </manifest>
+    <fileset dir="${build}"/>
+    <fileset dir="${include}"/>
     </jar>
   </target>
 	
