@@ -101,7 +101,7 @@ public class EvoNN extends NeuralNetwork implements Cloneable{
         //preprocess?
         speedYInputNeuron.setInput(speedY);
     }
-    public void setTrack(int[] trackSensors) {
+    public void setTrack(double[] trackSensors) {
         //preprocess?
         for (int i=0; i < trackSensors.length; i++) {
             trackInputNeurons[i].setInput(trackSensors[i]);
