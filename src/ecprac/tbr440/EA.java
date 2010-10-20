@@ -14,7 +14,7 @@ import ecprac.torcs.race.Race.Track;
 public class EA {
 
     final static int POPULATION_SIZE = 10,
-                     EVALUATIONS = 200;
+                     EVALUATIONS = 1000;
                      
     final static double //ALPHA = 0.45, //must be between 0 and 1.
     P_WEIGHTS = 0.5, //must be between 0 and 1.
@@ -146,7 +146,7 @@ public class EA {
     	//race.setTrack( Track.fromIndex( (evals / 2) % 2 ));
     	race.setTrack(Track.michigan);
     	race.setStage(Stage.RACE);
-    	race.setTermination(Termination.TICKS, 1000);
+    	race.setTermination(Termination.LAPS, 1);
 
     	// Add driver 1
     	Driver driver1 = new Driver();
@@ -211,7 +211,7 @@ public class EA {
 		// Run in Text Mode
 		RaceResults results = race.run();
 
-		// Fitness = BestLap, except if both did not do at least one lap
+		// Fitness = BestLap, except if all did not do at least one lap
 		if( Double.isInfinite(results.get(driver1).bestLapTime) && Double.isInfinite(results.get(driver2).bestLapTime) &&
 			Double.isInfinite(results.get(driver3).bestLapTime) && Double.isInfinite(results.get(driver4).bestLapTime) &&
 			Double.isInfinite(results.get(driver5).bestLapTime) && Double.isInfinite(results.get(driver6).bestLapTime) &&
@@ -252,7 +252,7 @@ public class EA {
 
     		Driver driver = new ecprac.tbr440.Driver();
     		driver.init();
-    		driver.loadGenome(Utilities.loadGenome("best.genome"));
+    		driver.loadGenome(Utilities.loadGenome("bestInitialization.genome"));
     		race.addCompetitor(driver);
 
     		race.runWithGUI();
@@ -272,10 +272,12 @@ public class EA {
     	 *
     	 */
 
-    	if(args.length > 0 && args[0].equals("-show")){
+    	/*if(args.length > 0 && args[0].equals("-show")){
     		new EA().show();
     	} else {
     		new EA().run();
-    	}
+    	}*/
+    	//new EA().show(); //qualifying race with best genome
+    	new EA().run();  //training race
     }
 }

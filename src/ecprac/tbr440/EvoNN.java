@@ -8,9 +8,9 @@ import org.neuroph.util.NeuronProperties;
 import org.neuroph.core.Connection;
 
 import java.util.Random;
-import java.util.Vector;
 
-public class EvoNN extends NeuralNetwork implements Cloneable{
+
+public class EvoNN extends NeuralNetwork{
     
 
     private Layer inputLayer;
@@ -19,6 +19,8 @@ public class EvoNN extends NeuralNetwork implements Cloneable{
 
     private Neuron angleInputNeuron;
     private Neuron[] trackInputNeurons;
+    private Neuron[] opponentInputNeurons;
+    private Neuron trackPositionInputNeuron;
     private Neuron speedXInputNeuron;
     private Neuron speedYInputNeuron;
 
@@ -26,6 +28,9 @@ public class EvoNN extends NeuralNetwork implements Cloneable{
     private Neuron steeringOutputNeuron;
 
     private Neuron biasNeuron = new BiasNeuron();
+    
+    final static int NR_OF_TRACK_SENSORS = 19,
+    				 NR_OF_OPPONENT_SENSORS = 36;
 
     EvoNN() {
         super();
@@ -107,9 +112,19 @@ public class EvoNN extends NeuralNetwork implements Cloneable{
             trackInputNeurons[i].setInput(trackSensors[i]);
         }
     }
+    public void setOpponent(double[] opponentSensors) {
+        //preprocess?
+        for (int i=0; i < opponentSensors.length; i++) {
+        	opponentInputNeurons[i].setInput(opponentSensors[i]);
+        }
+    }    
     public void setAngle(double angle) {
         //preprocess?
         angleInputNeuron.setInput(angle);
+    }    
+    public void setTrackPosition(double trackPosion) {
+        //preprocess?
+    	trackPositionInputNeuron.setInput(trackPosion);
     }
     
     //**
@@ -210,13 +225,18 @@ public class EvoNN extends NeuralNetwork implements Cloneable{
             org.neuroph.util.WeightsFunctionType.WEIGHTED_INPUT,
             org.neuroph.util.SummingFunctionType.SUM,
             org.neuroph.util.TransferFunctionType.LINEAR);
-        inputLayer = new Layer(23, props);
+        inputLayer = new Layer(NR_OF_TRACK_SENSORS+NR_OF_OPPONENT_SENSORS+4, props);
         angleInputNeuron = inputLayer.getNeuronAt(0);
         speedXInputNeuron = inputLayer.getNeuronAt(1);
         speedYInputNeuron = inputLayer.getNeuronAt(2);
-        trackInputNeurons = new Neuron[20];
-        for(int i=0; i<20; i++) {
-            trackInputNeurons[i] = inputLayer.getNeuronAt(i+3);
+        trackPositionInputNeuron = inputLayer.getNeuronAt(3);
+        trackInputNeurons = new Neuron[NR_OF_TRACK_SENSORS]; 
+        for(int i=0; i<NR_OF_TRACK_SENSORS; i++) {
+            trackInputNeurons[i] = inputLayer.getNeuronAt(i+4);
+        }
+        opponentInputNeurons = new Neuron[NR_OF_OPPONENT_SENSORS];
+        for(int i=0; i<NR_OF_OPPONENT_SENSORS; i++) {
+        	opponentInputNeurons[i] = inputLayer.getNeuronAt(i+NR_OF_TRACK_SENSORS+4);
         }
         setInputNeurons(inputLayer.getNeurons());
         this.addLayer(inputLayer);

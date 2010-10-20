@@ -43,9 +43,11 @@ public class Driver extends GenomeDriver {
         nn.setSpeedY(sensors.getLateralSpeed());
         nn.setTrack(sensors.getTrackEdgeSensors());
         nn.setAngle(sensors.getAngleToTrackAxis());
+        nn.setTrackPosition(sensors.getTrackPosition());
+        nn.setOpponent(sensors.getOpponentSensors());
         nn.calculate();
 
-	action.steering = nn.getSteering();
+        action.steering = nn.getSteering();
         action.accelerate = nn.getAccelerate();
  
         // We can leave this here to steer stupid drivers back on track
