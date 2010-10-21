@@ -47,7 +47,7 @@ public class EA {
     	evals += POPULATION_SIZE;
     	Arrays.sort(population, c); //genomes sorted from worst to best fitness
     	System.out.println("Initialization:"); //debug
-    	//debugPrintGenome(); //debug
+    	debugPrintGenome(population); //debug
 
     	try {
     		Utilities.saveGenome(population[POPULATION_SIZE-1], "bestInitialization.genome");
@@ -125,7 +125,7 @@ public class EA {
     	return result;
     }
 
-    //new population are the ten most fit individuals from children and population
+    //new population is  the ten most fit individuals from children and population
     private void survivorSelection() {
     	for(int i = 0; i < POPULATION_SIZE; i++){
     		populationAndChildren[i] = children[i];
@@ -211,7 +211,30 @@ public class EA {
 		// Run in Text Mode
 		RaceResults results = race.run();
 
-		// Fitness = BestLap, except if all did not do at least one lap
+		// Fitness = BestLap, or distance in case driver did not do at least one lap
+		if( Double.isInfinite(results.get(driver1).bestLapTime)) population[0].fitness = results.get(driver1).distance;
+		else population[0].fitness = -1 * results.get(driver1).bestLapTime;
+		if( Double.isInfinite(results.get(driver2).bestLapTime)) population[1].fitness = results.get(driver2).distance;
+		else population[1].fitness = -1 * results.get(driver2).bestLapTime;
+		if( Double.isInfinite(results.get(driver3).bestLapTime)) population[2].fitness = results.get(driver3).distance;
+		else population[2].fitness = -1 * results.get(driver3).bestLapTime;
+		if( Double.isInfinite(results.get(driver4).bestLapTime)) population[3].fitness = results.get(driver4).distance;
+		else population[3].fitness = -1 * results.get(driver4).bestLapTime;
+		if( Double.isInfinite(results.get(driver5).bestLapTime)) population[4].fitness = results.get(driver5).distance;
+		else population[4].fitness = -1 * results.get(driver5).bestLapTime;
+		if( Double.isInfinite(results.get(driver6).bestLapTime)) population[5].fitness = results.get(driver6).distance;
+		else population[5].fitness = -1 * results.get(driver6).bestLapTime;
+		if( Double.isInfinite(results.get(driver7).bestLapTime)) population[6].fitness = results.get(driver7).distance;
+		else population[6].fitness = -1 * results.get(driver7).bestLapTime;
+		if( Double.isInfinite(results.get(driver8).bestLapTime)) population[7].fitness = results.get(driver8).distance;
+		else population[7].fitness = -1 * results.get(driver8).bestLapTime;
+		if( Double.isInfinite(results.get(driver9).bestLapTime)) population[8].fitness = results.get(driver9).distance;
+		else population[8].fitness = -1 * results.get(driver9).bestLapTime;
+		if( Double.isInfinite(results.get(driver10).bestLapTime)) population[9].fitness = results.get(driver10).distance;
+		else population[9].fitness = -1 * results.get(driver10).bestLapTime;
+		
+		
+		/*
 		if( Double.isInfinite(results.get(driver1).bestLapTime) && Double.isInfinite(results.get(driver2).bestLapTime) &&
 			Double.isInfinite(results.get(driver3).bestLapTime) && Double.isInfinite(results.get(driver4).bestLapTime) &&
 			Double.isInfinite(results.get(driver5).bestLapTime) && Double.isInfinite(results.get(driver6).bestLapTime) &&
@@ -238,7 +261,7 @@ public class EA {
 			population[7].fitness = -1 * results.get(driver8).bestLapTime;
 			population[8].fitness = -1 * results.get(driver9).bestLapTime;
 			population[9].fitness = -1 * results.get(driver10).bestLapTime;
-		}
+		}*/
 
     }
 
@@ -247,15 +270,24 @@ public class EA {
 
     		Race race = new Race();
     		race.setTrack(Track.michigan);
-    		race.setStage(Stage.QUALIFYING);
+    		race.setStage(Stage.RACE);
     		race.setTermination(Termination.LAPS, 3);
 
     		Driver driver = new ecprac.tbr440.Driver();
     		driver.init();
-    		driver.loadGenome(Utilities.loadGenome("bestInitialization.genome"));
+    		driver.loadGenome(Utilities.loadGenome("best.genome"));
     		race.addCompetitor(driver);
+    		
+        	// Add driver 2
+        	Driver driver2 = new ecprac.tbr440.Driver();
+        	driver2.init();
+        	driver2.loadGenome(Utilities.loadGenome("best50%.genome"));
+        	race.addCompetitor(driver2);
 
-    		race.runWithGUI();
+    		RaceResults results = race.runWithGUI();
+    		if( Double.isInfinite(results.get(driver).bestLapTime)) System.out.println("distance is: " + results.get(driver).distance);    		
+    		else System.out.println("time is: " + results.get(driver).bestLapTime);
+    		
 
     	} catch (IOException e) {
     		e.printStackTrace();
@@ -277,7 +309,7 @@ public class EA {
     	} else {
     		new EA().run();
     	}*/
-    	//new EA().show(); //qualifying race with best genome
-    	new EA().run();  //training race
+    	new EA().show(); //qualifying race with best genome
+    	//new EA().run();  //training race
     }
 }

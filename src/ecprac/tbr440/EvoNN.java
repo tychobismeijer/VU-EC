@@ -88,10 +88,12 @@ public class EvoNN extends NeuralNetwork{
         double acc = accelerateOutputNeuron.getOutput();
         //System.out.printf("getacc %f\n", acc);
         //System.out.printf("speed %f\n", speedInputNeuron.getOutput());
+        //System.out.println("Accelerate output is: " + acc); //debug
         if (acc < 0) return 1; else return 0;
     }
     public double getSteering() {
         double steering = steeringOutputNeuron.getNetInput();
+        //System.out.println("steering output is: " + steering + " steering output Math.sin: " + Math.sin(steering)); //debug
         return Math.sin(steering);
     }
     

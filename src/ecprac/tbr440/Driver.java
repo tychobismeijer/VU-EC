@@ -11,8 +11,8 @@ import ecprac.torcs.genome.IGenome;
 
 public class Driver extends GenomeDriver {
 
-	private double steering;
-	private double trackpos;
+	//private double steering;
+	//private double trackpos;
     private EvoNN nn;
 
 
@@ -27,8 +27,8 @@ public class Driver extends GenomeDriver {
 
 		if (genome instanceof Genome) {
 			Genome llgenome = (Genome) genome;
-            steering = 0.1;
-			trackpos = 0.2;
+            //steering = 0.1;
+			//trackpos = 0.2;
             nn = llgenome.nn;
 		} else {
 			System.err.println("Invalid Genome assigned");
@@ -50,13 +50,14 @@ public class Driver extends GenomeDriver {
         action.steering = nn.getSteering();
         action.accelerate = nn.getAccelerate();
  
-        // We can leave this here to steer stupid drivers back on track
+        /*
+        // We can leave this here to steer stupid drivers back on track        
 		if(sensors.getTrackPosition() < -1 * trackpos) { // from the track
 			action.steering = steering * Math.abs(sensors.getTrackPosition()); 		// steer right
 		} 
 		if(sensors.getTrackPosition() > trackpos){ // from the track
 			action.steering =  -1 *  steering * Math.abs(sensors.getTrackPosition());  // steer left
-		}
+		}*/
 	}
 
 	public String getDriverName() {
