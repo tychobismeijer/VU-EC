@@ -29,6 +29,8 @@ public class EvoNN extends NeuralNetwork{
     //private Neuron breakOutputNeuron;
 
     private Neuron biasNeuron = new BiasNeuron();
+	
+	private EvoNN parent;
     
     final static int NR_OF_TRACK_SENSORS = 19;
     				 //NR_OF_OPPONENT_SENSORS = 36;
@@ -139,7 +141,15 @@ public class EvoNN extends NeuralNetwork{
         //preprocess?
     	trackPositionInputNeuron.setInput(trackPosion);
     }
-    
+	
+	public void setPossibleParent(EvoNN parent) {
+        if (similarity(parent) > 10) {
+            this.parent = parent;
+        } else {
+            this.parent = this;
+        }
+    }
+
     //**
     // Compatability distance
     // from NEAT

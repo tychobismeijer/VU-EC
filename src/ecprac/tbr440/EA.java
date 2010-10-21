@@ -55,10 +55,10 @@ public class EA {
     		Utilities.saveGenome(population[POPULATION_SIZE-1], "bestInitialization.genome");
     		while (evals < EVALUATIONS) { // the evolutionary loop
     		   for(int i = 0; i < POPULATION_SIZE; i++){
-                   //TODO: write function int parentSelection()  
-    			   Utilities.saveGenome(population[parentSelection()], "child.genome");                
-                   //System.out.println("parent copied"); //debug
+                   int parent_i = parentSelection();
+				   Utilities.saveGenome(population[parent_i], "child.genome");
                    children[i] = mutate((Genome) Utilities.loadGenome("child.genome"), P_WEIGHTS); //debug: mutate all
+				   children[i].nn.setPossibleParent(population[parent_i].nn);
                    //System.out.println("child mutated"); //debug
                } 
     			evaluateAll(children);
@@ -136,6 +136,23 @@ public class EA {
     		populationAndChildren[i] = population[i-POPULATION_SIZE];
     	}
     	Arrays.sort(populationAndChildren, c);
+		
+		/*
+        species = selectSpeciesfrompopulation;
+
+
+        for (every species) {
+            survivor_species = [];
+            for (individual) {
+                if(individual  in species) {
+                    add individual to survivor_species;
+                }
+            }
+            select best 2 from survivor_species
+            survivor_species
+        }
+        */
+		
     	for(int i = POPULATION_SIZE; i < POPULATION_SIZE*2; i++){
     		population[i-POPULATION_SIZE] = populationAndChildren[i];
     	}
@@ -211,7 +228,7 @@ public class EA {
 		race.addCompetitor(driver10);
 		
 		// Run in Text Mode
-		System.out.println("start evaluation");
+		System.out.println("start evaluation"); //debug
 		RaceResults results = race.run();
 
 		// Fitness = BestLap, or distance in case driver did not do at least one lap
@@ -272,7 +289,7 @@ public class EA {
     	try {
 
     		Race race = new Race();
-    		race.setTrack(Track.alpine);
+    		race.setTrack(Track.michigan);
     		race.setStage(Stage.QUALIFYING);
     		race.setTermination(Termination.LAPS, 3);
 
@@ -301,6 +318,12 @@ public class EA {
     		e.printStackTrace();
     	}
     }
+	
+	public void test() {
+        Genome g = (Genome) Utilities.loadGenome("best.genome");
+        Genome g2 = (Genome) Utilities.loadGenome("best50%.genome");
+        g.nn.similiraty(g2.nn);
+    }
 
     public static void main( String[] args ) {
 
@@ -315,7 +338,10 @@ public class EA {
     	} else {
     		new EA().run();
     	}*/
-    	//new EA().show(); //qualifying race with best genome
-    	new EA().run();  //training race
+		
+		//qualifying race with best genome
+    	//new EA().show();
+		//train population:
+    	new EA().run(); 
     }
 }
