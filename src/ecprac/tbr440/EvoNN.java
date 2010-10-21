@@ -12,7 +12,7 @@ import java.util.Random;
 
 public class EvoNN extends NeuralNetwork{
     
-
+    static final long serialVersionUID = 2002396243941905560L;
     private Layer inputLayer;
     private Layer outputLayer;
     private Layer hiddenLayer;

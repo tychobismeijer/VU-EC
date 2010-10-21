@@ -346,7 +346,7 @@ public class EA {
     	}*/
 		
 		//qualifying race with best genome
-    	//new EA().show();
+    	new EA().show();
 		//train population:
     	new EA().run(); 
     }
