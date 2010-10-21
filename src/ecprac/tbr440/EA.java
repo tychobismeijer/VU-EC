@@ -320,9 +320,15 @@ public class EA {
     }
 	
 	public void test() {
-        Genome g = (Genome) Utilities.loadGenome("best.genome");
-        Genome g2 = (Genome) Utilities.loadGenome("best50%.genome");
-        g.nn.similiraty(g2.nn);
+		try {
+			Genome g = (Genome) Utilities.loadGenome("best.genome");
+			Genome g2 = (Genome) Utilities.loadGenome("best50%.genome");
+			g.nn.similarity(g2.nn);
+    	} catch (IOException e) {
+    		e.printStackTrace();
+    	} catch (ClassNotFoundException e) {
+    		e.printStackTrace();
+    	}
     }
 
     public static void main( String[] args ) {
