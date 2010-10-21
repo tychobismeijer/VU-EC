@@ -4,11 +4,13 @@ import ecprac.torcs.genome.IGenome;
 
 public class Genome implements IGenome {    
    
-    public double fitness;
+    public double fitness,
+    			  damage;
     public EvoNN nn;
   
     Genome() {
-    	fitness = 1000000000.0;
+    	damage = 0.0;
+    	fitness = 0.0;
     	nn = new EvoNN();
     }
 }

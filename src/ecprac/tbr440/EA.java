@@ -10,11 +10,13 @@ import ecprac.torcs.race.Race;
 import ecprac.torcs.race.RaceResults;
 import ecprac.torcs.race.Race.Termination;
 import ecprac.torcs.race.Race.Track;
+import ecprac.torcs.client.SensorModel;
 
 public class EA {
 
     final static int POPULATION_SIZE = 10,
-                     EVALUATIONS = 1000;
+                     EVALUATIONS = 100,
+                     DAMAGE = 10000;
                      
     final static double //ALPHA = 0.45, //must be between 0 and 1.
     P_WEIGHTS = 0.5, //must be between 0 and 1.
@@ -42,7 +44,7 @@ public class EA {
     }
     
     public void run() {
-    	initialize();
+    	initialize();    	
     	evaluateAll(population);
     	evals += POPULATION_SIZE;
     	Arrays.sort(population, c); //genomes sorted from worst to best fitness
@@ -83,6 +85,7 @@ public class EA {
     	System.out.println("-------------Genomes------------------");
     	for (int i = 0; i < POPULATION_SIZE; i++){
     		System.out.println("Fitness is: " + genome[i].fitness);
+    		System.out.println("damage is: " + genome[i].damage);
     		System.out.println("Percentage is: " + (double)evals/EVALUATIONS);
     		System.out.println("Weights: ");
     		//genome[i].nn.debugPrintWeights();
@@ -93,8 +96,7 @@ public class EA {
 
     private void initialize() {
     	for (int i = 0; i < POPULATION_SIZE; i++) {
-    		Genome genome = new Genome();
-    		genome.fitness = 1000000000.0;
+    		Genome genome = new Genome();    		
     		population[i] = genome;
     	}
     }
@@ -120,7 +122,7 @@ public class EA {
      */
     private Genome mutate(Genome genome, double pWeights) {
     	Genome result = genome;
-    	result.nn.mutate(pWeights, 5, 0.5, 0.5, 0.5, 0.5);
+    	result.nn.mutate(pWeights, 0.1, 0.1, 0.5, 0.2, 0.5);
 
     	return result;
     }
@@ -144,7 +146,7 @@ public class EA {
 
     	// One of the two ovals
     	//race.setTrack( Track.fromIndex( (evals / 2) % 2 ));
-    	race.setTrack(Track.michigan);
+    	race.setTrack(Track.alpine);
     	race.setStage(Stage.RACE);
     	race.setTermination(Termination.LAPS, 1);
 
@@ -209,29 +211,30 @@ public class EA {
 		race.addCompetitor(driver10);
 		
 		// Run in Text Mode
+		System.out.println("start evaluation");
 		RaceResults results = race.run();
 
 		// Fitness = BestLap, or distance in case driver did not do at least one lap
-		if( Double.isInfinite(results.get(driver1).bestLapTime)) population[0].fitness = results.get(driver1).distance;
-		else population[0].fitness = -1 * results.get(driver1).bestLapTime;
-		if( Double.isInfinite(results.get(driver2).bestLapTime)) population[1].fitness = results.get(driver2).distance;
-		else population[1].fitness = -1 * results.get(driver2).bestLapTime;
-		if( Double.isInfinite(results.get(driver3).bestLapTime)) population[2].fitness = results.get(driver3).distance;
-		else population[2].fitness = -1 * results.get(driver3).bestLapTime;
-		if( Double.isInfinite(results.get(driver4).bestLapTime)) population[3].fitness = results.get(driver4).distance;
-		else population[3].fitness = -1 * results.get(driver4).bestLapTime;
-		if( Double.isInfinite(results.get(driver5).bestLapTime)) population[4].fitness = results.get(driver5).distance;
-		else population[4].fitness = -1 * results.get(driver5).bestLapTime;
-		if( Double.isInfinite(results.get(driver6).bestLapTime)) population[5].fitness = results.get(driver6).distance;
-		else population[5].fitness = -1 * results.get(driver6).bestLapTime;
-		if( Double.isInfinite(results.get(driver7).bestLapTime)) population[6].fitness = results.get(driver7).distance;
-		else population[6].fitness = -1 * results.get(driver7).bestLapTime;
-		if( Double.isInfinite(results.get(driver8).bestLapTime)) population[7].fitness = results.get(driver8).distance;
-		else population[7].fitness = -1 * results.get(driver8).bestLapTime;
-		if( Double.isInfinite(results.get(driver9).bestLapTime)) population[8].fitness = results.get(driver9).distance;
-		else population[8].fitness = -1 * results.get(driver9).bestLapTime;
-		if( Double.isInfinite(results.get(driver10).bestLapTime)) population[9].fitness = results.get(driver10).distance;
-		else population[9].fitness = -1 * results.get(driver10).bestLapTime;
+		if( Double.isInfinite(results.get(driver1).bestLapTime)) population[0].fitness = results.get(driver1).distance*(1+population[0].damage/DAMAGE);
+		else population[0].fitness = -1 * results.get(driver1).bestLapTime*(1+population[0].damage/DAMAGE);
+		if( Double.isInfinite(results.get(driver2).bestLapTime)) population[1].fitness = results.get(driver2).distance*(1+population[1].damage/DAMAGE);
+		else population[1].fitness = -1 * results.get(driver2).bestLapTime*(1+population[1].damage/DAMAGE);
+		if( Double.isInfinite(results.get(driver3).bestLapTime)) population[2].fitness = results.get(driver3).distance*(1+population[2].damage/DAMAGE);
+		else population[2].fitness = -1 * results.get(driver3).bestLapTime*(1+population[2].damage/DAMAGE);
+		if( Double.isInfinite(results.get(driver4).bestLapTime)) population[3].fitness = results.get(driver4).distance*(1+population[3].damage/DAMAGE);
+		else population[3].fitness = -1 * results.get(driver4).bestLapTime*(1+population[3].damage/DAMAGE);
+		if( Double.isInfinite(results.get(driver5).bestLapTime)) population[4].fitness = results.get(driver5).distance*(1+population[4].damage/DAMAGE);
+		else population[4].fitness = -1 * results.get(driver5).bestLapTime*(1+population[4].damage/DAMAGE);
+		if( Double.isInfinite(results.get(driver6).bestLapTime)) population[5].fitness = results.get(driver6).distance*(1+population[5].damage/DAMAGE);
+		else population[5].fitness = -1 * results.get(driver6).bestLapTime*(1+population[5].damage/DAMAGE);
+		if( Double.isInfinite(results.get(driver7).bestLapTime)) population[6].fitness = results.get(driver7).distance*(1+population[6].damage/DAMAGE);
+		else population[6].fitness = -1 * results.get(driver7).bestLapTime*(1+population[6].damage/DAMAGE);
+		if( Double.isInfinite(results.get(driver8).bestLapTime)) population[7].fitness = results.get(driver8).distance*(1+population[7].damage/DAMAGE);
+		else population[7].fitness = -1 * results.get(driver8).bestLapTime*(1+population[7].damage/DAMAGE);
+		if( Double.isInfinite(results.get(driver9).bestLapTime)) population[8].fitness = results.get(driver9).distance*(1+population[8].damage/DAMAGE);
+		else population[8].fitness = -1 * results.get(driver9).bestLapTime*(1+population[8].damage/DAMAGE);
+		if( Double.isInfinite(results.get(driver10).bestLapTime)) population[9].fitness = results.get(driver10).distance*(1+population[9].damage/DAMAGE);
+		else population[9].fitness = -1 * results.get(driver10).bestLapTime*(1+population[9].damage/DAMAGE);
 		
 		
 		/*
@@ -269,21 +272,24 @@ public class EA {
     	try {
 
     		Race race = new Race();
-    		race.setTrack(Track.michigan);
-    		race.setStage(Stage.RACE);
+    		race.setTrack(Track.alpine);
+    		race.setStage(Stage.QUALIFYING);
     		race.setTermination(Termination.LAPS, 3);
 
     		Driver driver = new ecprac.tbr440.Driver();
     		driver.init();
-    		driver.loadGenome(Utilities.loadGenome("best.genome"));
+    		Genome g = (Genome) Utilities.loadGenome("best.genome");
+    		g.nn.debugPrintWeights();
+    		driver.loadGenome(g);
     		race.addCompetitor(driver);
     		
         	// Add driver 2
+    		/*
         	Driver driver2 = new ecprac.tbr440.Driver();
         	driver2.init();
         	driver2.loadGenome(Utilities.loadGenome("best50%.genome"));
         	race.addCompetitor(driver2);
-
+			*/
     		RaceResults results = race.runWithGUI();
     		if( Double.isInfinite(results.get(driver).bestLapTime)) System.out.println("distance is: " + results.get(driver).distance);    		
     		else System.out.println("time is: " + results.get(driver).bestLapTime);
@@ -309,7 +315,7 @@ public class EA {
     	} else {
     		new EA().run();
     	}*/
-    	new EA().show(); //qualifying race with best genome
-    	//new EA().run();  //training race
+    	//new EA().show(); //qualifying race with best genome
+    	new EA().run();  //training race
     }
 }

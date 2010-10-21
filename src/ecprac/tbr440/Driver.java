@@ -14,6 +14,7 @@ public class Driver extends GenomeDriver {
 	//private double steering;
 	//private double trackpos;
     private EvoNN nn;
+    private	Genome llgenome;
 
 
 	public void init() {
@@ -26,7 +27,7 @@ public class Driver extends GenomeDriver {
 	public void loadGenome(IGenome genome) {
 
 		if (genome instanceof Genome) {
-			Genome llgenome = (Genome) genome;
+			llgenome = (Genome) genome;
             //steering = 0.1;
 			//trackpos = 0.2;
             nn = llgenome.nn;
@@ -44,11 +45,13 @@ public class Driver extends GenomeDriver {
         nn.setTrack(sensors.getTrackEdgeSensors());
         nn.setAngle(sensors.getAngleToTrackAxis());
         nn.setTrackPosition(sensors.getTrackPosition());
-        nn.setOpponent(sensors.getOpponentSensors());
+        //nn.setOpponent(sensors.getOpponentSensors());
         nn.calculate();
+        llgenome.damage = sensors.getDamage();
 
         action.steering = nn.getSteering();
         action.accelerate = nn.getAccelerate();
+        //action.brake = nn.getBreak();
  
         /*
         // We can leave this here to steer stupid drivers back on track        

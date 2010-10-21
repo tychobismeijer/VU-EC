@@ -19,18 +19,19 @@ public class EvoNN extends NeuralNetwork{
 
     private Neuron angleInputNeuron;
     private Neuron[] trackInputNeurons;
-    private Neuron[] opponentInputNeurons;
+    //private Neuron[] opponentInputNeurons;
     private Neuron trackPositionInputNeuron;
     private Neuron speedXInputNeuron;
     private Neuron speedYInputNeuron;
 
     private Neuron accelerateOutputNeuron;
     private Neuron steeringOutputNeuron;
+    //private Neuron breakOutputNeuron;
 
     private Neuron biasNeuron = new BiasNeuron();
     
-    final static int NR_OF_TRACK_SENSORS = 19,
-    				 NR_OF_OPPONENT_SENSORS = 36;
+    final static int NR_OF_TRACK_SENSORS = 19;
+    				 //NR_OF_OPPONENT_SENSORS = 36;
 
     EvoNN() {
         super();
@@ -84,18 +85,28 @@ public class EvoNN extends NeuralNetwork{
     /**
      * get an output from the network
      */
-    public int getAccelerate() {
+    public double getAccelerate() {
         double acc = accelerateOutputNeuron.getOutput();
         //System.out.printf("getacc %f\n", acc);
         //System.out.printf("speed %f\n", speedInputNeuron.getOutput());
         //System.out.println("Accelerate output is: " + acc); //debug
-        if (acc < 0) return 1; else return 0;
+        return (Math.sin(acc)+1)/2;
     }
     public double getSteering() {
         double steering = steeringOutputNeuron.getNetInput();
+        
         //System.out.println("steering output is: " + steering + " steering output Math.sin: " + Math.sin(steering)); //debug
         return Math.sin(steering);
     }
+    
+    
+    /*public double getBreak() {
+        double breaking = breakOutputNeuron.getNetInput();
+       
+        //System.out.println("steering output is: " + steering + " steering output Math.sin: " + Math.sin(steering)); //debug
+        if(breaking < 0) return 0;
+        else return 1;
+    }*/
     
     /**
      * set an input neuron
@@ -114,12 +125,12 @@ public class EvoNN extends NeuralNetwork{
             trackInputNeurons[i].setInput(trackSensors[i]);
         }
     }
-    public void setOpponent(double[] opponentSensors) {
+    /*public void setOpponent(double[] opponentSensors) {
         //preprocess?
         for (int i=0; i < opponentSensors.length; i++) {
         	opponentInputNeurons[i].setInput(opponentSensors[i]);
         }
-    }    
+    } */   
     public void setAngle(double angle) {
         //preprocess?
         angleInputNeuron.setInput(angle);
@@ -227,7 +238,7 @@ public class EvoNN extends NeuralNetwork{
             org.neuroph.util.WeightsFunctionType.WEIGHTED_INPUT,
             org.neuroph.util.SummingFunctionType.SUM,
             org.neuroph.util.TransferFunctionType.LINEAR);
-        inputLayer = new Layer(NR_OF_TRACK_SENSORS+NR_OF_OPPONENT_SENSORS+4, props);
+        inputLayer = new Layer(NR_OF_TRACK_SENSORS+4, props);
         angleInputNeuron = inputLayer.getNeuronAt(0);
         speedXInputNeuron = inputLayer.getNeuronAt(1);
         speedYInputNeuron = inputLayer.getNeuronAt(2);
@@ -236,10 +247,10 @@ public class EvoNN extends NeuralNetwork{
         for(int i=0; i<NR_OF_TRACK_SENSORS; i++) {
             trackInputNeurons[i] = inputLayer.getNeuronAt(i+4);
         }
-        opponentInputNeurons = new Neuron[NR_OF_OPPONENT_SENSORS];
+        /*opponentInputNeurons = new Neuron[NR_OF_OPPONENT_SENSORS];
         for(int i=0; i<NR_OF_OPPONENT_SENSORS; i++) {
         	opponentInputNeurons[i] = inputLayer.getNeuronAt(i+NR_OF_TRACK_SENSORS+4);
-        }
+        }*/
         setInputNeurons(inputLayer.getNeurons());
         this.addLayer(inputLayer);
     }
@@ -250,14 +261,20 @@ public class EvoNN extends NeuralNetwork{
             new org.neuroph.core.input.InputFunction(
                 new org.neuroph.core.input.WeightedInput(),
                 new org.neuroph.core.input.Sum()),
-            new org.neuroph.core.transfer.Sgn());
+            new org.neuroph.core.transfer.Linear());
         steeringOutputNeuron = new Neuron(
             new org.neuroph.core.input.InputFunction(
                 new org.neuroph.core.input.WeightedInput(),
                 new org.neuroph.core.input.Sum()),
             new org.neuroph.core.transfer.Linear());
+        /*breakOutputNeuron = new Neuron(
+            new org.neuroph.core.input.InputFunction(
+                new org.neuroph.core.input.WeightedInput(),
+                new org.neuroph.core.input.Sum()),
+            new org.neuroph.core.transfer.Sgn());*/      
         outputLayer.addNeuron(accelerateOutputNeuron);
         outputLayer.addNeuron(steeringOutputNeuron);
+        //outputLayer.addNeuron(breakOutputNeuron);
         setOutputNeurons(outputLayer.getNeurons());
         this.addLayer(outputLayer);
     }
